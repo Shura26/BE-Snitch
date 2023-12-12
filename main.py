@@ -4,10 +4,7 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 from bs4 import BeautifulSoup
 import undetected_chromedriver as uc
-import time
-import requests
-import json
-import shodan
+import time 
 
 def scroll_to_bottom(driver):
     # Scrolle jusqu'à la fin de la page
@@ -48,7 +45,7 @@ def scrape(url):
 
     # Sauvegarde le contenu de la page dans un fichier
     with open('page.html', 'w', encoding='utf-8') as file:
-        file.write(driver.page_source)
+        file.write(html)
 
     driver.quit()
     print(f"La page HTML est sauvegardée")
