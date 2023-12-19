@@ -1,162 +1,180 @@
-from selenium import webdriver
-from selenium.webdriver.common.by import By
-from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.support.ui import WebDriverWait
-from bs4 import BeautifulSoup
-import undetected_chromedriver as uc
-import time
-import requests
-import json
-import shodan
-
-def scroll_to_bottom(driver):
-    # Scrolle jusqu'à la fin de la page
-    while True:
-        driver.find_element(By.XPATH, '//body').send_keys(Keys.PAGE_DOWN)
-        time.sleep(0.5)  # temps d'attente entre les défilements
-        # check si fin de page atteint
-        end_of_page = driver.execute_script("return window.innerHeight + window.scrollY >= document.body.scrollHeight;")
-        if end_of_page:
-            break
-
-def scrape(url):
-    # Configuration de Selenium
-    options = webdriver.ChromeOptions()
-    options.add_argument('--headless')
-    options.add_argument('--disable-gpu')
-    options.add_argument('--window-size=1200x600')
-
-    if "crunchyroll" in url:
-        driver = uc.Chrome()
-        driver.get(url)
-
-        wait = WebDriverWait(driver, 2)
-
-        # Scrolle jusqu'à la fin de la page
-        scroll_to_bottom(driver)
-        html = driver.page_source
+import cloudscraper, json, requests
 
 
-    if "animationdigitalnetwork" in url:
-        driver = webdriver.Chrome(options=options)
-        driver.get(url)
+# obtient un token d'access auprès du serveur de crunchyroll pour pouvoir requeter le serveur plus tard
+def get_access_token():
+    data = {
+        "grant_type": "client_id"
+    }
+    headers = {
+        "Authorization": "Basic Y3Jfd2ViOg==",
+    }
 
-        time.sleep(5)
+    scraper = cloudscraper.create_scraper()
+    response = scraper.post("https://www.crunchyroll.com/auth/v1/token", data=data, headers=headers).text
+    json_data = json.loads(response)
 
-        #scroll_to_bottom(driver)
-        html = driver.page_source
-
-    # Sauvegarde le contenu de la page dans un fichier
-    with open('page.html', 'w', encoding='utf-8') as file:
-        file.write(driver.page_source)
-
-    driver.quit()
-    print(f"La page HTML est sauvegardée")
-
-    extractPseudos(html)
-
-def extractPseudos(html):
-    soup = BeautifulSoup(html, 'html.parser')
+    return json_data.get("access_token")
 
 
-    contenuInClass1 = soup.find_all('div', class_='sc-853f2479-7 jBFBhi') #ADN comentaire
-    contenuInClass2 = soup.find_all('div', class_='sc-853f2479-7 jYPWes') #ADN reponse
-    contenuInClass3 = soup.find_all('div', class_='comment__username--dNChO') #Crunchyroll comentaire
+# récupère les 100 derniers id d'anime ajoutés
+def get_lastest_anime_ids(token):
+    headers = {
+        "Authorization": f"Bearer {token}",
+    }
 
-    contenuInAllClass = contenuInClass1 + contenuInClass2 + contenuInClass3
+    scraper = cloudscraper.create_scraper()
+    response = scraper.get(
+        f"https://www.crunchyroll.com/content/v2/discover/browse?n=10&sort_by=newly_added&ratings=true&locale=fr-FR",
+        headers=headers).text
+    json_data = json.loads(response)
+    ids = []
 
-    #sauvegarde des pseudos
-    if contenuInAllClass:
-        with open('pseudo.txt', 'a', encoding='utf-8') as fichier:
-            for pseudos in contenuInAllClass:
-                contenu = pseudos.get_text(strip=True)
-                fichier.write(contenu + '\n')
-        print("Pseudos sauvegardés dans pseudos.txt.")
+    for item in json_data.get("data"):
+        anime_id = item.get("id", None)
+
+        if anime_id:
+            ids.append(anime_id)
+
+    with open("anime_ids.txt", "w") as ids_file:
+        ids_file.write("\n".join(map(str, ids)))
+
+    return ids
+
+
+
+# récupère tous les usernames qui ont postés des commentaires sur un anime
+def get_usernames_from_comments(id_anime, token):
+    headers = {
+        "Authorization": f"Bearer {token}",
+    }
+
+    scraper = cloudscraper.create_scraper()
+    page_size = 100
+    usernames = []
+
+    # Obtenez le nombre total de commentaires
+    response = scraper.get(
+        f"https://www.crunchyroll.com/content-reviews/v2/fr-FR/review/series/{id_anime}/list?page=1&page_size=100&sort=helpful",
+        headers=headers).text
+    json_data = json.loads(response)
+    total_comments = json_data.get("total", 0)
+
+    if total_comments > 100:
+        # Obtenez tous les commentaires de manière itérative
+        for page in range(1, (total_comments // page_size) + 2):
+            response = scraper.get(
+                f"https://www.crunchyroll.com/content-reviews/v2/fr-FR/review/series/{id_anime}/list?page={page}&page_size={page_size}&sort=helpful",
+                headers=headers).text
+            json_data = json.loads(response)
+
+            # Extraire les noms d'utilisateur
+            for item in json_data.get("items", []):
+                username = item.get("author", {}).get("username", None)
+
+                if username:
+                    usernames.append(username)
     else:
-        print("Balises non trouvées")
+        # Extraire les noms d'utilisateur
+        for item in json_data.get("items", []):
+            username = item.get("author", {}).get("username", None)
+
+            if username:
+                usernames.append(username)
+
+    with open("usernames.txt", "a") as usernames_file:
+        usernames_file.write("\n".join(usernames) + "\n")
+    return usernames
 
 
-def scrapNewLink():
-    url = "https://www.crunchyroll.com/fr/videos/new"
+def tri_usernames(file_path):
+    try:
+        with open(file_path, "r") as file:
+            lines = file.read().splitlines()
+    except FileNotFoundError:
+        lines = []
+#set pour enlever les doublons
+    unique_lines = list(set(lines))
 
-    # Configuration de Selenium
-    options = webdriver.ChromeOptions()
-    options.add_argument('--headless')
-    options.add_argument('--disable-gpu')
-    options.add_argument('--window-size=1200x600')
+    with open(file_path, "w") as file:
+        file.write("\n".join(unique_lines) + "\n")
 
-    if "crunchyroll" in url:
-        driver = uc.Chrome()
-        driver.get(url)
 
-        wait = WebDriverWait(driver, 2)
+#pour tester sur 50 username
+def extract_usernames(input_file, output_file, num_usernames=50):
+    try:
+        with open(input_file, "r") as input_file:
+            lines = input_file.readlines()
+    except FileNotFoundError:
+        print(f"Le fichier {input_file} n'existe pas.")
+        return
 
-        # Scrolle
-        nbScrolle = range(5)
-        for scrolle in nbScrolle:
-            driver.find_element(By.XPATH, '//body').send_keys(Keys.PAGE_DOWN)
-            time.sleep(0.5)  # temps d'attente entre les défilements
-            # check si fin de page atteint
-            end_of_page = driver.execute_script(
-                "return window.innerHeight + window.scrollY >= document.body.scrollHeight;")
-            if end_of_page:
-                break
+    # Extraire les 50 premiers usernames (ou moins si le fichier en contient moins)
+    extracted_usernames = lines[:num_usernames]
 
-        html = driver.page_source
-        driver.quit()
+    # Écrire les usernames extraits dans un autre fichier
+    with open(output_file, "w") as output_file:
+        output_file.write("".join(extracted_usernames))
 
-        soup = BeautifulSoup(html, 'html.parser')
-        contenuInClass = soup.find_all('a', class_='browse-card__poster-wrapper--pU-AW')
 
-    if contenuInClass:
-        with open('AnimeLinks.txt', 'a', encoding='utf-8') as fichier:
-            for link in contenuInClass:
-                contenu = link.get('href')
-                fichier.write("https://www.crunchyroll.com" + contenu + '\n')
-        print("Liens sauvegardés dans AnimeLink.txt.")
+
+def req_breach(pseudo, output_file):
+    #API KEY
+    key = ""
+    url = "https://BreachDirectory.com/api_usage?method=username&key=" + key + "&query=" + pseudo
+    response = requests.get(url)
+
+    if response.ok:
+        data = response.json()
+
+        with open(output_file, "a") as file:
+
+            for entry in data:
+                title = entry['title']
+                domain = entry['domain']
+                email = entry['email']
+                username = entry['username']
+                ip = entry['ip']
+
+
+                print(f"Title: {title}, Domain: {domain}, Email: {email}, Username: {username}, IP: {ip}", file=file)
 
     else:
-        print("Balises non trouvées")
+        print(f"Erreur de requête : {response.status_code}")
+        print(f"Message d'erreur : {response.text}")
 
 
 
-def scrapEpLink(url):
-    # Configuration de Selenium
-    options = webdriver.ChromeOptions()
-    options.add_argument('--headless')
-    options.add_argument('--disable-gpu')
-    options.add_argument('--window-size=1200x600')
 
-    if "crunchyroll" in url:
-        driver = uc.Chrome()
-        driver.get(url)
+token = get_access_token()
+anime_ids = get_lastest_anime_ids(token)
 
-        wait = WebDriverWait(driver, 10)
-        scroll_to_bottom(driver)
-        html = driver.page_source
-        driver.quit()
+for anime_id in anime_ids:
+    get_usernames_from_comments(anime_id, token)
 
-        soup = BeautifulSoup(html, 'html.parser')
-        contenu_in_class = soup.find_all('a', class_='playable-card__thumbnail-wrapper--BkWZo')
+tri_usernames("usernames.txt")
 
-        if contenu_in_class:
-            with open('EpLinks.txt', 'a', encoding='utf-8') as fichier:
-                for link in contenu_in_class:
-                    contenu = link.get('href')
-                    fichier.write("https://www.crunchyroll.com" + contenu + '\n')
-            print("Liens sauvegardés dans EpLink.txt.")
-        else:
-            print("Balises non trouvées")
+with open("usernames.txt", "r") as file:
+    nb_usernames= len(file.readlines())
+    print("Nombres de usernames: ",nb_usernames)
+
+extract_usernames("usernames.txt", "extracted_usernames.txt", num_usernames=50)
 
 
-#sur ADN,après le nom de l'anime dans l'url les ep sont numéroter ex:ep1 de fairy tail => https://animationdigitalnetwork.fr/video/fairy-tail/3628
-#for epID in range(3628,3631):
- #   url = 'https://animationdigitalnetwork.fr/video/fairy-tail/' + str(epID)
-  #  scrape(url)
+with open("extracted_usernames.txt", "r") as usernames_file:
+    usernames = usernames_file.read().splitlines()
 
-#url = 'https://www.crunchyroll.com/fr/watch/G69XGG44R/ryomen-sukuna'
-#scrape(url)
-scrapNewLink()
-with open('AnimeLinks.txt', 'r', encoding='utf-8') as fichierAnimeList:
-    for ligne in fichierAnimeList:
-        scrapEpLink(ligne)
+with open("breach.txt", "a") as output_file:
+    for username in usernames:
+        req_breach(username, "breach.txt")
+
+
+
+
+
+#usernames_scraped = 0
+#for anime_id in anime_ids:
+#    users = get_usernames_from_comments(anime_id, token)
+#    usernames_scraped += len(users)
+#    print(usernames_scraped)
+    # print(users)
