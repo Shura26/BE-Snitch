@@ -2,7 +2,7 @@
 Update main {
 fusion avec le code de remy, et ajouts de fonctions :
 tri_usernames : supprime les username en double
-extract_usernames : fonction de test sur 50 utilisateur pour pas épuiser les requetes  
+extract_usernames : fonction temporaire de test sur 50 utilisateur pour pas épuiser les requetes 
 req_breach : test la compromission des username dans breachdirectory
 + les anime_ids, usernames et le retour de breachdirectory sont enregistrer dans des fichiers.
 }
