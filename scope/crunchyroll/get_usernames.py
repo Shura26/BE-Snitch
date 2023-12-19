@@ -1,5 +1,5 @@
 import cloudscraper, json
-
+from BDD.scripts.crunchyroll import *
 
 #obtient un token d'access auprès du serveur de crunchyroll pour pouvoir requeter le serveur plus tard
 def get_access_token():
@@ -18,14 +18,14 @@ def get_access_token():
 
 
 
-#récupère les 100 derniers id d'anime ajoutés
-def get_lastest_anime_ids(token):
+#récupère les limit_animes derniers id d'anime ajoutés
+def get_lastest_anime_ids(token, limit_animes):
     headers = {
         "Authorization": f"Bearer {token}",
     }
 
     scraper = cloudscraper.create_scraper()  
-    response = scraper.get(f"https://www.crunchyroll.com/content/v2/discover/browse?n=100&sort_by=newly_added&ratings=true&locale=fr-FR", headers=headers).text
+    response = scraper.get(f"https://www.crunchyroll.com/content/v2/discover/browse?n={limit_animes}&sort_by=newly_added&ratings=true&locale=fr-FR", headers=headers).text
     json_data = json.loads(response)
     ids = []
 
@@ -77,13 +77,12 @@ def get_usernames_from_comments(id_anime, token):
 
     return usernames
 
+def get_pseudos_from_crunchyroll(anime_ids, token):
 
-token = get_access_token()
-anime_ids = get_lastest_anime_ids(token)
+    ids_already_checked = get_ids_already_checked()
 
-usernames_scraped = 0
-for anime_id in anime_ids:
-    users = get_usernames_from_comments(anime_id, token)
-    usernames_scraped += len(users)
-    print(usernames_scraped)
-    #print(users)
+    for anime_id in anime_ids:
+        if anime_id not in ids_already_checked:
+            users = get_usernames_from_comments(anime_id, token)
+            update_pseudos(anime_id, users)
+ 
