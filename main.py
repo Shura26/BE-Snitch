@@ -1,5 +1,6 @@
 import cloudscraper, json, requests
-
+import smtplib, ssl
+from email.message import EmailMessage
 
 # obtient un token d'access auprès du serveur de crunchyroll pour pouvoir requeter le serveur plus tard
 def get_access_token():
@@ -119,46 +120,80 @@ def extract_usernames(input_file, output_file, num_usernames=50):
 
 
 def req_breach(pseudo, output_file):
-    #API KEY
-    key = ""
-    url = "https://BreachDirectory.com/api_usage?method=username&key=" + key + "&query=" + pseudo
+    key = "1aad489490ba1788902b3537ceabfc47"
+    url = f"https://BreachDirectory.com/api_usage?method=username&key={key}&query={pseudo}"
     response = requests.get(url)
 
     if response.ok:
         data = response.json()
 
         with open(output_file, "a") as file:
-
             for entry in data:
-                title = entry['title']
-                domain = entry['domain']
-                email = entry['email']
-                username = entry['username']
-                ip = entry['ip']
+                # Vérifier la présence et la non-nullité des champs nécessaires
+                if 'domain' in entry and entry['domain'] and 'email' in entry and entry['email'] and 'username' in entry and entry['username']:
+                    title = entry.get('title', 'N/A')
+                    domain = entry['domain']
+                    email = entry['email']
+                    username = entry['username']
+                    ip = entry.get('ip', 'N/A')
 
-
-                print(f"Title: {title}, Domain: {domain}, Email: {email}, Username: {username}, IP: {ip}", file=file)
-
+                    # Écrire dans le fichier uniquement si tous les champs sont présents et non vides
+                    print(f"Title: {title}, Domain: {domain}, Email: {email}, Username: {username}, IP: {ip}", file=file)
     else:
         print(f"Erreur de requête : {response.status_code}")
         print(f"Message d'erreur : {response.text}")
 
+def mail_sender() :
+    #mail = "nakamaprotect@outlook.fr"
+    password = ""
+
+
+    with open("breach.txt", "r") as breachFile:
+        #usernmaes=breachFile.read().splitlines()
+
+        for username in breachFile:
+            email_split = username.split("Email:")
+            domain_split = username.split("Domain:")
+            username_split = username.split("Username:")
+
+            mail = email_split[1].strip().split(",")[0]
+            domain = domain_split[1].strip().split(",")[0]
+            username = username_split[1].strip().split(",")[0]
+
+            msg = EmailMessage()
+            msg.set_content(
+                "Bonjour, nous sommes Nakamaprotect un projet visant à préserver la confidentialité de vos comptes sur internet."
+                "\nNous avons découvert que des identifiants liés à l'identifiant " + username + " ont potentiellement fuité sur ce site : " + domain +
+                "\nNous vous conseillons de ne plus utiliser le mots de passe utiliser sur ce site avec ce mail ou l'identifiant."
+                "\nSi vous n'êtes pas concerné par ce mail nous nous excusons de la gêne occasionnée")
+            msg["Subject"] = "Nakamaprotect"
+
+            msg["From"] = "nakamaprotect@outlook.fr"
+            msg["To"] = mail
+
+            context = ssl.create_default_context()
+            with smtplib.SMTP("smtp.office365.com", port=587) as smtp:
+                smtp.starttls(context=context)
+                smtp.login(msg["From"], password)
+                smtp.send_message(msg)
 
 
 
-token = get_access_token()
-anime_ids = get_lastest_anime_ids(token)
 
-for anime_id in anime_ids:
-    get_usernames_from_comments(anime_id, token)
 
-tri_usernames("usernames.txt")
+#token = get_access_token()
+#anime_ids = get_lastest_anime_ids(token)
 
-with open("usernames.txt", "r") as file:
-    nb_usernames= len(file.readlines())
-    print("Nombres de usernames: ",nb_usernames)
+#for anime_id in anime_ids:
+#    get_usernames_from_comments(anime_id, token)
 
-extract_usernames("usernames.txt", "extracted_usernames.txt", num_usernames=50)
+#tri_usernames("usernames.txt")
+
+#with open("usernames.txt", "r") as file:
+#    nb_usernames= len(file.readlines())
+#    print("Nombres de usernames: ",nb_usernames)
+
+#extract_usernames("usernames.txt", "extracted_usernames.txt", num_usernames=50)
 
 
 with open("extracted_usernames.txt", "r") as usernames_file:
@@ -169,7 +204,7 @@ with open("breach.txt", "a") as output_file:
         req_breach(username, "breach.txt")
 
 
-
+#mail_sender()
 
 
 #usernames_scraped = 0
