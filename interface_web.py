@@ -3,6 +3,7 @@ from scope.crunchyroll.get_usernames import *
 from breachdirectory import *
 from BDD.scripts.adn import *
 from BDD.scripts.crunchyroll import *
+from mail.py import *
 
 ######################### BOUTON GET PSEUDOS FROM CRUNCHYROLL #########################
 
@@ -24,3 +25,8 @@ def button_get_pseudos_adn(limit_call):
     starting_id = get_starting_id()
     get_username_from_adn(starting_id, limit_call)
     #implémenter la suite de la logique avec breachdirectory
+
+
+#Envoie des mails
+def button_send_mails():
+    mail_sender()
