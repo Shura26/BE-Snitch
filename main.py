@@ -120,7 +120,7 @@ def extract_usernames(input_file, output_file, num_usernames=50):
 
 
 def req_breach(pseudo, output_file):
-    key = "1aad489490ba1788902b3537ceabfc47"
+    key = ""
     url = f"https://BreachDirectory.com/api_usage?method=username&key={key}&query={pseudo}"
     response = requests.get(url)
 
