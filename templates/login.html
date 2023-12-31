@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Connexion</title>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      integrity="sha384-rO5F6RqMRaL47Z9l/2rAAli6gmhI3sAEvYHA3OVcyD6Z/xQhrWV7KGIXuAgJfFfe"
+      crossorigin="anonymous"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN"
+      crossorigin="anonymous"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/bootstrap.min.css') }}"
+    />
+
+    <style>
+      .bd-placeholder-img {
+        font-size: 1.125rem;
+        text-anchor: middle;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        user-select: none;
+      }
+
+      @media (min-width: 768px) {
+        .bd-placeholder-img-lg {
+          font-size: 3.5rem;
+        }
+      }
+
+      .b-example-divider {
+        width: 100%;
+        height: 3rem;
+        background-color: rgba(0, 0, 0, 0.1);
+        border: solid rgba(0, 0, 0, 0.15);
+        border-width: 1px 0;
+        box-shadow: inset 0 0.5em 1.5em rgba(0, 0, 0, 0.1),
+          inset 0 0.125em 0.5em rgba(0, 0, 0, 0.15);
+      }
+
+      .b-example-vr {
+        flex-shrink: 0;
+        width: 1.5rem;
+        height: 100vh;
+      }
+
+      .bi {
+        vertical-align: -0.125em;
+        fill: currentColor;
+      }
+
+      .nav-scroller {
+        position: relative;
+        z-index: 2;
+        height: 2.75rem;
+        overflow-y: hidden;
+      }
+
+      .nav-scroller .nav {
+        display: flex;
+        flex-wrap: nowrap;
+        padding-bottom: 1rem;
+        margin-top: -1px;
+        overflow-x: auto;
+        text-align: center;
+        white-space: nowrap;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      .btn-bd-primary {
+        --bd-violet-bg: #712cf9;
+        --bd-violet-rgb: 112.520718, 44.062154, 249.437846;
+
+        --bs-btn-font-weight: 600;
+        --bs-btn-color: var(--bs-white);
+        --bs-btn-bg: var(--bd-violet-bg);
+        --bs-btn-border-color: var(--bd-violet-bg);
+        --bs-btn-hover-color: var(--bs-white);
+        --bs-btn-hover-bg: #6528e0;
+        --bs-btn-hover-border-color: #6528e0;
+        --bs-btn-focus-shadow-rgb: var(--bd-violet-rgb);
+        --bs-btn-active-color: var(--bs-btn-hover-color);
+        --bs-btn-active-bg: #5a23c8;
+        --bs-btn-active-border-color: #5a23c8;
+      }
+
+      .bd-mode-toggle {
+        z-index: 1500;
+      }
+
+      .bd-mode-toggle .dropdown-menu .active .bi {
+        display: block !important;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="login-container">
+      <h1 class="h1">CONNEXION</h1>
+      <form action="/login" method="post">
+        <input
+          type="text"
+          name="prenom"
+          placeholder="Nom d'utilisateur"
+        /><br />
+        <input
+          type="password"
+          name="password"
+          placeholder="Mot de passe"
+        /><br />
+        <button type="submit " class="btn btn-success">
+          Se connecter
+          <svg
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <style>
+              .spinner_zWVm {
+                animation: spinner_5QiW 1.2s linear infinite,
+                  spinner_PnZo 1.2s linear infinite;
+              }
+              .spinner_gfyD {
+                animation: spinner_5QiW 1.2s linear infinite,
+                  spinner_4j7o 1.2s linear infinite;
+                animation-delay: 0.1s;
+              }
+              .spinner_T5JJ {
+                animation: spinner_5QiW 1.2s linear infinite,
+                  spinner_fLK4 1.2s linear infinite;
+                animation-delay: 0.1s;
+              }
+              .spinner_E3Wz {
+                animation: spinner_5QiW 1.2s linear infinite,
+                  spinner_tDji 1.2s linear infinite;
+                animation-delay: 0.2s;
+              }
+              .spinner_g2vs {
+                animation: spinner_5QiW 1.2s linear infinite,
+                  spinner_CMiT 1.2s linear infinite;
+                animation-delay: 0.2s;
+              }
+              .spinner_ctYB {
+                animation: spinner_5QiW 1.2s linear infinite,
+                  spinner_cHKR 1.2s linear infinite;
+                animation-delay: 0.2s;
+              }
+              .spinner_BDNj {
+                animation: spinner_5QiW 1.2s linear infinite,
+                  spinner_Re6e 1.2s linear infinite;
+                animation-delay: 0.3s;
+              }
+              .spinner_rCw3 {
+                animation: spinner_5QiW 1.2s linear infinite,
+                  spinner_EJmJ 1.2s linear infinite;
+                animation-delay: 0.3s;
+              }
+              .spinner_Rszm {
+                animation: spinner_5QiW 1.2s linear infinite,
+                  spinner_YJOP 1.2s linear infinite;
+                animation-delay: 0.4s;
+              }
+              @keyframes spinner_5QiW {
+                0%,
+                50% {
+                  width: 7.33px;
+                  height: 7.33px;
+                }
+                25% {
+                  width: 1.33px;
+                  height: 1.33px;
+                }
+              }
+              @keyframes spinner_PnZo {
+                0%,
+                50% {
+                  x: 1px;
+                  y: 1px;
+                }
+                25% {
+                  x: 4px;
+                  y: 4px;
+                }
+              }
+              @keyframes spinner_4j7o {
+                0%,
+                50% {
+                  x: 8.33px;
+                  y: 1px;
+                }
+                25% {
+                  x: 11.33px;
+                  y: 4px;
+                }
+              }
+              @keyframes spinner_fLK4 {
+                0%,
+                50% {
+                  x: 1px;
+                  y: 8.33px;
+                }
+                25% {
+                  x: 4px;
+                  y: 11.33px;
+                }
+              }
+              @keyframes spinner_tDji {
+                0%,
+                50% {
+                  x: 15.66px;
+                  y: 1px;
+                }
+                25% {
+                  x: 18.66px;
+                  y: 4px;
+                }
+              }
+              @keyframes spinner_CMiT {
+                0%,
+                50% {
+                  x: 8.33px;
+                  y: 8.33px;
+                }
+                25% {
+                  x: 11.33px;
+                  y: 11.33px;
+                }
+              }
+              @keyframes spinner_cHKR {
+                0%,
+                50% {
+                  x: 1px;
+                  y: 15.66px;
+                }
+                25% {
+                  x: 4px;
+                  y: 18.66px;
+                }
+              }
+              @keyframes spinner_Re6e {
+                0%,
+                50% {
+                  x: 15.66px;
+                  y: 8.33px;
+                }
+                25% {
+                  x: 18.66px;
+                  y: 11.33px;
+                }
+              }
+              @keyframes spinner_EJmJ {
+                0%,
+                50% {
+                  x: 8.33px;
+                  y: 15.66px;
+                }
+                25% {
+                  x: 11.33px;
+                  y: 18.66px;
+                }
+              }
+              @keyframes spinner_YJOP {
+                0%,
+                50% {
+                  x: 15.66px;
+                  y: 15.66px;
+                }
+                25% {
+                  x: 18.66px;
+                  y: 18.66px;
+                }
+              }
+            </style>
+            <rect class="spinner_zWVm" x="1" y="1" width="7.33" height="7.33" />
+            <rect
+              class="spinner_gfyD"
+              x="8.33"
+              y="1"
+              width="7.33"
+              height="7.33"
+            />
+            <rect
+              class="spinner_T5JJ"
+              x="1"
+              y="8.33"
+              width="7.33"
+              height="7.33"
+            />
+            <rect
+              class="spinner_E3Wz"
+              x="15.66"
+              y="1"
+              width="7.33"
+              height="7.33"
+            />
+            <rect
+              class="spinner_g2vs"
+              x="8.33"
+              y="8.33"
+              width="7.33"
+              height="7.33"
+            />
+            <rect
+              class="spinner_ctYB"
+              x="1"
+              y="15.66"
+              width="7.33"
+              height="7.33"
+            />
+            <rect
+              class="spinner_BDNj"
+              x="15.66"
+              y="8.33"
+              width="7.33"
+              height="7.33"
+            />
+            <rect
+              class="spinner_rCw3"
+              x="8.33"
+              y="15.66"
+              width="7.33"
+              height="7.33"
+            />
+            <rect
+              class="spinner_Rszm"
+              x="15.66"
+              y="15.66"
+              width="7.33"
+              height="7.33"
+            />
+          </svg>
+        </button>
+      </form>
+    </div>
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
+      integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js"
+      integrity="sha384-BBtl+eGJRgqQAUMxJ7pMwbEyER4l1g+O15P+16Ep7Q9Q+zqX6gSbd85u4mG4QzX+"
+      crossorigin="anonymous"
+    ></script>
+  </body>
+</html>
