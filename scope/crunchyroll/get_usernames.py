@@ -77,12 +77,15 @@ def get_usernames_from_comments(id_anime, token):
 
     return usernames
 
+
 def get_pseudos_from_crunchyroll(anime_ids, token):
 
-    ids_already_checked = get_ids_already_checked()
-
+    #clear_all_users()
     for anime_id in anime_ids:
-        if anime_id not in ids_already_checked:
-            users = get_usernames_from_comments(anime_id, token)
-            update_pseudos(anime_id, users)
+        add_to_BDD(anime_id,Crunchyroll.id_table,Crunchyroll.id_column)
+        users = get_usernames_from_comments(anime_id, token)
+
+        for username in users:
+            add_to_BDD(username,Crunchyroll.user_table,Crunchyroll.user_column)
+
  
