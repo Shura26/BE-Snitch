@@ -75,6 +75,8 @@ def recuperer_pseudos_crunchyroll():
     token = get_access_token()
     anime_ids = get_lastest_anime_ids(token, int(limit_ids))
     get_pseudos_from_crunchyroll(anime_ids, token)
+
+    return render_template('login.html')
     #implémenter la suite de la logique avec breachdirectory
 
 @app.route('/recuperer_pseudos_adn', methods=['POST'])
